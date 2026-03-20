@@ -24,24 +24,24 @@ def init(address=0x48, bus_id=1, vcc=5.0):
 
 #实际上你需要调用这个函数 叫做设置电压函数 你需要传入想要的电压
 def set_voltage(target_voltage):
-    """
-    设置模拟输出电压
-    :param target_voltage: 目标电压值（0 ~ vcc）
-    """
     if _bus is None:
         raise RuntimeError("请先调用 init() 初始化模块")
     
-    if target_voltage < 0:
-        target_voltage = 0
-    if target_voltage > _vcc:
-        target_voltage = _vcc
+    # --- 修改这里：设置不同的上下限 ---
+    min_v = 1.0  # 定义最小值
+    max_v = 5.0  # 定义最大值
 
-    # 将电压转换为8位数字（0-255）
+    if target_voltage < min_v:
+        target_voltage = min_v
+    if target_voltage > max_v:
+        target_voltage = max_v
+    # --------------------------------
+
+    # 将电压转换为8位数字 (0-255)
     digital_value = int(target_voltage / _vcc * 255)
 
-    # 控制字节0x40：使能DAC输出
     _bus.write_byte_data(_address, 0x40, digital_value)
-    print(f"[speed] 已设置输出电压: {target_voltage:.2f}V (数字值: {digital_value})")
+    print(f"[speed-Bus1] 输出电压: {target_voltage:.2f}V (范围: {min_v}-{max_v}V)")
 
 def init_conversion():
     """
